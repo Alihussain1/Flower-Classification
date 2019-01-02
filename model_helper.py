@@ -152,7 +152,7 @@ def predict(image_path, model,device,cat_to_name,topk=5):
     classes = top_predictions_softmax[1][0].cpu().numpy()
     classes_names = [cat_to_name[str(c+1)] for c in classes] 
     prop = top_predictions_softmax[0][0].cpu().numpy()
-    
+    classes *= 100
     
     fig, ax = plt.subplots(1,2,figsize=(20,8))
     imshow(image[0],ax=ax[0])
