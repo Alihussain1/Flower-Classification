@@ -88,6 +88,7 @@ def train_model(model, device, train_loader, valid_loader, criterion, optimizer,
 
         # save model if validation loss has decreased
         if valid_loss <= valid_loss_min:
+            valid_loss_min = valid_loss
             torch.save(model.state_dict(), 'model.pt')
 def process_image(image):
     if image.size[0] > image.size[1]:
