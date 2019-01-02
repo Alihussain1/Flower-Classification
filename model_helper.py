@@ -29,13 +29,17 @@ def create_model(model_name = "alexnet"):
     if model_name == "alexnet":
         model = models.alexnet(pretrained=True)
         first_layer_in = 9216
+    elif model_name == "resnet50":
+        model = models.resnet50(pretrained=True)
+        first_layer_in = 2048
     else:
         return 
     
     for param in model.parameters():
         param.requires_grad = False
-           
-    model.classifier = nn.Sequential(#nn.Dropout(0.5),
+    
+    if model_name == "alexnet":
+        model.classifier = nn.Sequential(#nn.Dropout(0.5),
                                 nn.Linear(first_layer_in,4096),
                                 nn.ReLU(),
                                 nn.Dropout(0.3),
@@ -45,10 +49,25 @@ def create_model(model_name = "alexnet"):
                                 nn.Linear(2048,102),
                                  nn.LogSoftmax(dim=1)
                                 )
-    # specify loss function
-    criterion = nn.NLLLoss()
-    # specify optimizer
-    optimizer = optim.Adam(model.classifier.parameters(),lr=0.001)
+        # specify loss function
+        criterion = nn.NLLLoss()
+        # specify optimizer
+        optimizer = optim.Adam(model.classifier.parameters(),lr=0.001)
+    elif model_name == "resnet50":
+        model.fc = nn.Sequential(
+                                nn.Linear(first_layer_in,4096),
+                                nn.ReLU(),
+                                nn.Dropout(0.3),
+                                nn.Linear(4096,2048),
+                                nn.ReLU(),
+                                nn.Dropout(0.3),
+                                nn.Linear(2048,102),
+                                 nn.LogSoftmax(dim=1)
+                                )
+        # specify loss function
+        criterion = nn.NLLLoss()
+        # specify optimizer
+        optimizer = optim.Adam(model.fc.parameters(),lr=0.001)
     return model , criterion, optimizer
 def train_model(model, device, train_loader, valid_loader, criterion, optimizer, epochs = 200):
     valid_loss_min = np.inf
